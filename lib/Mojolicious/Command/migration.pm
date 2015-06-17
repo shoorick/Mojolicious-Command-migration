@@ -35,7 +35,11 @@ has deployed => sub {
 };
 has db => sub {
 	my $self = shift;
-	return $self->app->db if $self->app->can('db');
+	return $self->app->dbh
+		if $self->app->can('dbh');
+	return $self->app->db
+		if $self->app->can('db')
+		|| ref $self->app->renderer->helpers->{'db'} eq 'CODE'; # Mojolicious::Plugin::Database put db into helpers
 	DBI->connect('dbi:mysql:'.$self->config->{datasource}->{database},
 		$self->config->{user    },
 		$self->config->{password},
